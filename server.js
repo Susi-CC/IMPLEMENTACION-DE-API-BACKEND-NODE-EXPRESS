@@ -9,24 +9,28 @@ const run = async () => {
     firstName: 'Mateo',
     lastName: 'Díaz',
     email: 'mateo.diaz@correo.com',
+    password: '12345678',
   })
 
   const user2 = await userController.createUser({
     firstName: 'Santiago',
     lastName: 'Mejias',
     email: 'santiago.mejias@correo.com',
+    password: '12345678',
   })
 
   const user3 = await userController.createUser({
     firstName: 'Lucas',
     lastName: 'Rojas',
     email: 'lucas.rojas@correo.com',
+    password: '12345678',
   })
 
   const user4 = await userController.createUser({
     firstName: 'Facundo',
     lastName: 'Fernández',
-    email: 'facundo.fernandez@correo.com',
+    email: 'facundo.fernandez@correo.com',   
+    password: '12345678',
   })
 
   // Crear un Bootcamp
