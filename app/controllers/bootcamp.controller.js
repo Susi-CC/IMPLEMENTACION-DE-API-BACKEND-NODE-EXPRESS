@@ -16,7 +16,7 @@ exports.createBootcamp = async (req, res) => {
       title: req.body.title,
       cue: req.body.cue,
       description: req.body.description,
-      userId: req.userId, 
+      userId: req.userId,
     });
 
     res.status(201).send({
@@ -28,29 +28,33 @@ exports.createBootcamp = async (req, res) => {
   }
 };
 
-// Agregar un Usuario al Bootcamp
-exports.addUser = (bootcampId, userId) => {
-  return Bootcamp.findByPk(bootcampId)
-    .then((bootcamp) => {
-      if (!bootcamp) {
-        console.log("No se encontro el Bootcamp!");
-        return null;
-      }
-      return User.findByPk(userId).then((user) => {
-        if (!user) {
-          console.log("Usuario no encontrado!");
-          return null;
-        }
-        bootcamp.addUser(user);
-        console.log('***************************')
-        console.log(` Agregado el usuario id=${user.id} al bootcamp con id=${bootcamp.id}`);
-        console.log('***************************')
-        return bootcamp;
-      });
-    })
-    .catch((err) => {
-      console.log(">> Error mientras se estaba agregando Usuario al Bootcamp", err);
-    });
+exports.addUser = async (req, res) => {
+  try {
+    const { bootcampId, userId } = req.body;
+
+    const bootcamp = await Bootcamp.findByPk(bootcampId);
+    const user = await User.findByPk(userId);
+
+    if (!bootcamp) {
+      return res.status(404).send({ message: "Bootcamp no encontrado" });
+    }
+
+    if (!user) {
+      return res.status(404).send({ message: "Usuario no encontrado" });
+    }
+
+    await bootcamp.addUser(user);
+
+    const message = `
+***************************
+ Agregado el usuario id=${user.id} al bootcamp con id=${bootcamp.id}
+***************************
+`;
+
+    res.status(200).send({ message });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
 };
 
 
