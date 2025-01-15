@@ -16,7 +16,6 @@ exports.createBootcamp = async (req, res) => {
       title: req.body.title,
       cue: req.body.cue,
       description: req.body.description,
-      userId: req.userId,
     });
 
     res.status(201).send({
@@ -57,41 +56,46 @@ exports.addUser = async (req, res) => {
   }
 };
 
+exports.getAllBootcamps = async (req, res) => {
+  try {
+    const bootcamps = await Bootcamp.findAll({
+      attributes: ["id", "title", "cue", "description"] 
+    });
+    res.status(200).send(bootcamps);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
 
-// obtener los bootcamp por id 
-exports.findById = (Id) => {
-  return Bootcamp.findByPk(Id, {
-    include: [{
-      model: User,
-      as: "users",
-      attributes: ["id", "firstName", "lastName"],
-      through: {
-        attributes: [],
-      }
-    },],
-  })
-    .then(bootcamp => {
-      return bootcamp
-    })
-    .catch(err => {
-      console.log(`>> Error mientras se encontraba el bootcamp: ${err}`)
-    })
-}
+exports.getBootcampById = async (req, res) => {
+    try {
+        const bootcampId = parseInt(req.params.id, 10);
+        if (!req.params.id) {
+            return res.status(400).send({ message: "El ID del bootcamp es obligatorio" });
+        }
 
-// obtener todos los Usuarios incluyendo los Bootcamp
-exports.findAll = () => {
-  return Bootcamp.findAll({
-    include: [{
-      model: User,
-      as: "users",
-      attributes: ["id", "firstName", "lastName"],
-      through: {
-        attributes: [],
-      }
-    },],
-  }).then(bootcamps => {
-    return bootcamps
-  }).catch((err) => {
-    console.log(">> Error Buscando los Bootcamps: ", err);
-  });
-}
+        if (isNaN(bootcampId)) {
+            return res.status(400).send({ message: "El ID del bootcamp debe ser un número válido" });
+        }
+
+        const bootcamp = await Bootcamp.findByPk(bootcampId, 
+          {
+            attributes: ["id", "title", "cue", "description"], 
+            include: [{
+                model: User,
+                as: "users", 
+                attributes: ["id", "firstName", "lastName", "email"], 
+                through: { attributes: [] } 
+            }]
+        });
+
+        if (!bootcamp) {
+            return res.status(404).send({ message: "Bootcamp no encontrado" });
+        }
+
+        res.status(200).send(bootcamp);
+    } catch (err) {
+        console.error(">> Error en getBootcampById:", err.message);
+        res.status(500).send({ message: "Error al obtener el bootcamp" });
+    }
+};
