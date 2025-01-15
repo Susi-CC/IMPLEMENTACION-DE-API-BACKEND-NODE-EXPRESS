@@ -8,23 +8,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config");
 
-// Crear y Guardar Usuarios
-exports.createUser = (user) => {
-  return User.create({
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    password: user.password
-  })
-    .then(user => {
-      console.log(`>> Se ha creado el usuario: ${JSON.stringify(user, null, 4)}`)
-      return user
-    })
-    .catch(err => {
-      console.log(`>> Error al crear el usuario ${err}`)
-    })
-}
-
 // obtener los bootcamp de un usuario
 exports.findUserById = (userId) => {
   return User.findByPk(userId, {
@@ -156,14 +139,13 @@ exports.signin = async (req, res) => {
 
     const token = jwt.sign({ id: user.id }, config.secret, { expiresIn: 86400 }); // Expira en 24 horas
 
-    res.status(200).send({
+    res.status(200).send({ 
       message: "Sesión iniciada correctamente",
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      accessToken: token,
-    });
+      accessToken: token,});
   } catch (err) {
     res.status(500).send({ message: err.message });
   }

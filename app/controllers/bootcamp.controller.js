@@ -6,21 +6,27 @@ const db = require('../models')
 const Bootcamp = db.bootcamps
 const User = db.users
 
-// Crear y guardar un nuevo bootcamp
-exports.createBootcamp = (bootcamp) => {
-  return Bootcamp.create({
-      title: bootcamp.title,
-      cue: bootcamp.cue,
-      description: bootcamp.description,
-    })
-    .then(bootcamp => {
-      console.log(`>> Creado el bootcamp: ${JSON.stringify(bootcamp, null, 4)}`)
-      return bootcamp
-    })
-    .catch(err => {
-      console.log(`>> Error al crear el bootcamp: ${err}`)
-    })
-}
+exports.createBootcamp = async (req, res) => {
+  try {
+    if (!req.body.title || !req.body.cue || !req.body.description) {
+      return res.status(400).send({ message: "Todos los campos son obligatorios" });
+    }
+
+    const bootcamp = await Bootcamp.create({
+      title: req.body.title,
+      cue: req.body.cue,
+      description: req.body.description,
+      userId: req.userId, 
+    });
+
+    res.status(201).send({
+      message: "Bootcamp creado exitosamente",
+      bootcamp,
+    });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
 
 // Agregar un Usuario al Bootcamp
 exports.addUser = (bootcampId, userId) => {
@@ -51,15 +57,15 @@ exports.addUser = (bootcampId, userId) => {
 // obtener los bootcamp por id 
 exports.findById = (Id) => {
   return Bootcamp.findByPk(Id, {
-      include: [{
-        model: User,
-        as: "users",
-        attributes: ["id", "firstName", "lastName"],
-        through: {
-          attributes: [],
-        }
-      }, ],
-    })
+    include: [{
+      model: User,
+      as: "users",
+      attributes: ["id", "firstName", "lastName"],
+      through: {
+        attributes: [],
+      }
+    },],
+  })
     .then(bootcamp => {
       return bootcamp
     })
@@ -78,7 +84,7 @@ exports.findAll = () => {
       through: {
         attributes: [],
       }
-    }, ],
+    },],
   }).then(bootcamps => {
     return bootcamps
   }).catch((err) => {
