@@ -3,7 +3,7 @@ const { signup, signin, getUserWithBootcamps, getAllUsersWithBootcamps, updateUs
 const { verifyToken } = require("../middlewares/auth");
 const router = express.Router();
 
-router.post("/user/signup", signup);
+router.post("/signup", signup);
 router.post("/signin", signin);
 router.get("/user/:userId", verifyToken, getUserWithBootcamps);
 router.get("/user", verifyToken, getAllUsersWithBootcamps);
